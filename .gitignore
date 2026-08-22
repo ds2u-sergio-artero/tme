@@ -1,0 +1,15 @@
+# aia-harness
+.claude/settings.local.json
+.claude/*.local.*
+.claude/.aia-harness-pending/
+
+# secrets — never commit
+.env
+.env.*
+!.env.example
+
+# local / generated
+.claude/worktrees/
+.claude/*.graphify-bak
+graphify-out/
+node_modules/
