@@ -23,10 +23,15 @@ describe('snoozeTask', () => {
 });
 
 describe('unsnoozeTask', () => {
-  test('clears snoozedUntil', () => {
-    const task = { ...taskWithStatus('Open'), snoozedUntil: until };
+  test.each<Status>(['Open', 'Scheduled', 'Delegated'])('clears snoozedUntil for a %s task', (status) => {
+    const task = { ...taskWithStatus(status), snoozedUntil: until };
     const result = unsnoozeTask(task, now);
     expect(result.snoozedUntil).toBeNull();
+  });
+
+  test.each<Status>(['Completed', 'Archived', 'Deleted'])('throws DomainError for a %s task', (status) => {
+    const task = { ...taskWithStatus(status), snoozedUntil: until };
+    expect(() => unsnoozeTask(task, now)).toThrow(DomainError);
   });
 });
 

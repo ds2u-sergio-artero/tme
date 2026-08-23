@@ -28,7 +28,11 @@ export async function editDeadline(
   const task = await mustFindTask(deps.taskRepo, taskId);
   const updated = setDeadline(task, deadline, now);
   await deps.taskRepo.save(updated);
-  await deps.eventRepo.append(createTaskEvent(taskId, 'deadline_changed', task.deadline, deadline, now));
+  const oldTime = task.deadline ? task.deadline.getTime() : null;
+  const newTime = updated.deadline ? updated.deadline.getTime() : null;
+  if (oldTime !== newTime) {
+    await deps.eventRepo.append(createTaskEvent(taskId, 'deadline_changed', task.deadline, deadline, now));
+  }
   if (task.promotionOverride !== null && updated.promotionOverride === null) {
     await deps.eventRepo.append(createTaskEvent(taskId, 'promotion_override_cleared', task.promotionOverride, null, now));
   }

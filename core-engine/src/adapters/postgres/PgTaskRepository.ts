@@ -118,12 +118,18 @@ export class PgTaskRepository implements TaskRepository {
   }
 
   async findDeadlinesDueWithin(from: Date, to: Date): Promise<Task[]> {
-    const result = await this.pool.query<TaskRow>('SELECT * FROM tasks WHERE deadline BETWEEN $1 AND $2', [from, to]);
+    const result = await this.pool.query<TaskRow>(
+      "SELECT * FROM tasks WHERE deadline BETWEEN $1 AND $2 AND status IN ('Open','Scheduled','Delegated')",
+      [from, to]
+    );
     return result.rows.map(fromRow);
   }
 
   async findFollowUpsDueWithin(from: Date, to: Date): Promise<Task[]> {
-    const result = await this.pool.query<TaskRow>('SELECT * FROM tasks WHERE follow_up_date BETWEEN $1 AND $2', [from, to]);
+    const result = await this.pool.query<TaskRow>(
+      "SELECT * FROM tasks WHERE follow_up_date BETWEEN $1 AND $2 AND status IN ('Open','Scheduled','Delegated')",
+      [from, to]
+    );
     return result.rows.map(fromRow);
   }
 }

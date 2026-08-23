@@ -15,8 +15,8 @@ export async function scheduleTask(
   const now = deps.clock.now();
   const task = await mustFindTask(deps.taskRepo, taskId);
   const transitioned = transitionStatus(task, 'Scheduled', now);
-  const ref = await deps.schedulingPort.createEvent(task);
-  const updated: Task = { ...transitioned, scheduledDate, calendarEventRef: ref };
+  const ref = await deps.schedulingPort.createEvent({ ...transitioned, scheduledDate });
+  const updated: Task = { ...transitioned, scheduledDate, calendarEventRef: ref, schedulingRemoved: false };
 
   await deps.taskRepo.save(updated);
   await deps.eventRepo.append(createTaskEvent(taskId, 'status_transition', task.status, updated.status, now));

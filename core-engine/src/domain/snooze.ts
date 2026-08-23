@@ -11,6 +11,9 @@ export function snoozeTask(task: Task, until: Date, now: Date): Task {
 }
 
 export function unsnoozeTask(task: Task, now: Date): Task {
+  if (!SNOOZABLE_STATUSES.includes(task.status)) {
+    throw new DomainError(`Cannot unsnooze a task with status ${task.status}`);
+  }
   return { ...task, snoozedUntil: null, updatedAt: now };
 }
 

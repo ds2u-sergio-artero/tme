@@ -31,6 +31,20 @@ describe('snoozeTaskService', () => {
 
     await expect(snoozeTaskService(deps, task.id, new Date('2026-01-08T00:00:00Z'))).rejects.toThrow(DomainError);
   });
+
+  test('re-snoozing to the identical date emits no event', async () => {
+    const { deps, taskRepo, eventRepo, clock } = setup();
+    const until = new Date('2026-01-08T00:00:00Z');
+    const task = {
+      ...createTask({ title: 'T', description: '', source: 'manual', sourceRefId: null }, clock.now()),
+      snoozedUntil: new Date('2026-01-08T00:00:00Z'),
+    };
+    await taskRepo.save(task);
+
+    await snoozeTaskService(deps, task.id, until);
+
+    expect(await eventRepo.findByTaskId(task.id)).toHaveLength(0);
+  });
 });
 
 describe('unsnoozeTaskService', () => {
@@ -43,5 +57,15 @@ describe('unsnoozeTaskService', () => {
 
     expect(result.snoozedUntil).toBeNull();
     expect((await eventRepo.findByTaskId(task.id))[0].eventType).toBe('unsnoozed');
+  });
+
+  test('unsnoozing a task that was never snoozed emits no event', async () => {
+    const { deps, taskRepo, eventRepo, clock } = setup();
+    const task = createTask({ title: 'T', description: '', source: 'manual', sourceRefId: null }, clock.now());
+    await taskRepo.save(task);
+
+    await unsnoozeTaskService(deps, task.id);
+
+    expect(await eventRepo.findByTaskId(task.id)).toHaveLength(0);
   });
 });

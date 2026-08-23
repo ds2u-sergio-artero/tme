@@ -13,9 +13,12 @@ function setup() {
 }
 
 describe('scheduleTask', () => {
-  test('calls SchedulingPort.createEvent, stores the returned ref and scheduled date, and moves status to Scheduled', async () => {
+  test('calls SchedulingPort.createEvent with the post-transition task, stores the returned ref and scheduled date, moves status to Scheduled, and clears schedulingRemoved', async () => {
     const { taskRepo, eventRepo, schedulingPort, clock } = setup();
-    const task = createTask({ title: 'T', description: '', source: 'manual', sourceRefId: null }, clock.now());
+    const task = {
+      ...createTask({ title: 'T', description: '', source: 'manual', sourceRefId: null }, clock.now()),
+      schedulingRemoved: true,
+    };
     await taskRepo.save(task);
     const scheduledDate = new Date('2026-02-01T00:00:00Z');
 
@@ -24,7 +27,10 @@ describe('scheduleTask', () => {
     expect(result.status).toBe('Scheduled');
     expect(result.scheduledDate).toBe(scheduledDate);
     expect(result.calendarEventRef).toEqual({ provider: 'google', externalEventId: 'evt-1' });
-    expect(schedulingPort.calls).toEqual([task]);
+    expect(result.schedulingRemoved).toBe(false);
+    expect(schedulingPort.calls).toHaveLength(1);
+    expect(schedulingPort.calls[0].status).toBe('Scheduled');
+    expect(schedulingPort.calls[0].scheduledDate).toBe(scheduledDate);
     const events = await eventRepo.findByTaskId(task.id);
     expect(events[0].eventType).toBe('status_transition');
     expect(events[0].newValue).toBe('Scheduled');

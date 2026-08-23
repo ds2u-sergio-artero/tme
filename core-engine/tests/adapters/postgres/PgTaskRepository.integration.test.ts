@@ -1,5 +1,6 @@
 import { describe, test, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import { Pool } from 'pg';
+import { createPool } from '../../../src/adapters/postgres/db.js';
 import { createTask } from '../../../src/domain/task.js';
 import { PgTaskRepository } from '../../../src/adapters/postgres/PgTaskRepository.js';
 
@@ -11,7 +12,7 @@ describeIfPg('PgTaskRepository (integration)', () => {
   let repo: PgTaskRepository;
 
   beforeAll(async () => {
-    pool = new Pool({ connectionString });
+    pool = createPool(connectionString!);
     repo = new PgTaskRepository(pool);
   });
 
@@ -33,6 +34,18 @@ describeIfPg('PgTaskRepository (integration)', () => {
     expect(found?.title).toBe('Integration test');
     expect(found?.status).toBe('Open');
     expect(found?.tags).toEqual([]);
+  });
+
+  test('round-trips emailSnapshot and tags as jsonb', async () => {
+    const task = {
+      ...createTask({ title: 'A', description: '', source: 'manual', sourceRefId: null }, new Date('2026-01-01T00:00:00Z')),
+      emailSnapshot: { sender: 'a@b.c', subject: 'S' },
+      tags: ['x', 'y'],
+    };
+    await repo.save(task);
+    const found = await repo.findById(task.id);
+    expect(found?.emailSnapshot).toEqual({ sender: 'a@b.c', subject: 'S' });
+    expect(found?.tags).toEqual(['x', 'y']);
   });
 
   test('finds a task by calendarEventRef', async () => {

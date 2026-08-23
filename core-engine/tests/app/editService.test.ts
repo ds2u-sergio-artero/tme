@@ -39,6 +39,19 @@ describe('editDeadline', () => {
     expect(events[0].eventType).toBe('deadline_changed');
   });
 
+  test('does not emit any event when the deadline is unchanged', async () => {
+    const { taskRepo, eventRepo, clock } = setup();
+    const task = {
+      ...createTask({ title: 'T', description: '', source: 'manual', sourceRefId: null }, clock.now()),
+      deadline: new Date('2026-03-01T00:00:00Z'),
+    };
+    await taskRepo.save(task);
+
+    await editDeadline({ taskRepo, eventRepo, clock }, task.id, new Date('2026-03-01T00:00:00Z'));
+
+    expect(await eventRepo.findByTaskId(task.id)).toHaveLength(0);
+  });
+
   test('also records promotion_override_cleared when changing the deadline clears an active override', async () => {
     const { taskRepo, eventRepo, clock } = setup();
     const oldDeadline = new Date('2025-12-01T00:00:00Z');

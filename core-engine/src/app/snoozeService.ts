@@ -17,7 +17,9 @@ export async function snoozeTaskService(deps: SnoozeDeps, taskId: string, until:
   const task = await mustFindTask(deps.taskRepo, taskId);
   const updated = snoozeTask(task, until, now);
   await deps.taskRepo.save(updated);
-  await deps.eventRepo.append(createTaskEvent(taskId, 'snoozed', task.snoozedUntil, until, now));
+  if (task.snoozedUntil?.getTime() !== until.getTime()) {
+    await deps.eventRepo.append(createTaskEvent(taskId, 'snoozed', task.snoozedUntil, until, now));
+  }
   return updated;
 }
 
@@ -26,6 +28,8 @@ export async function unsnoozeTaskService(deps: SnoozeDeps, taskId: string): Pro
   const task = await mustFindTask(deps.taskRepo, taskId);
   const updated = unsnoozeTask(task, now);
   await deps.taskRepo.save(updated);
-  await deps.eventRepo.append(createTaskEvent(taskId, 'unsnoozed', task.snoozedUntil, null, now));
+  if (task.snoozedUntil !== null) {
+    await deps.eventRepo.append(createTaskEvent(taskId, 'unsnoozed', task.snoozedUntil, null, now));
+  }
   return updated;
 }

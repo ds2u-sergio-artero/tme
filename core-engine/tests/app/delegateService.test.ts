@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest';
-import { delegateTaskService } from '../../src/app/delegateService.js';
+import { delegateTaskService, setDelegateStatus } from '../../src/app/delegateService.js';
 import { scheduleTask } from '../../src/app/scheduleService.js';
 import { FakeTaskRepository, FakeTaskEventRepository, FakeSchedulingPort, FixedClock } from './fakes.js';
 import { createTask } from '../../src/domain/task.js';
@@ -42,5 +42,19 @@ describe('delegateTaskService', () => {
     expect(delegated.scheduledDate).toBeNull();
     expect(delegated.calendarEventRef).toBeNull();
     expect(schedulingPort.calls).toHaveLength(1); // unchanged — delegate never calls SchedulingPort
+  });
+});
+
+describe('setDelegateStatus', () => {
+  test('sets delegateStatus and persists it without emitting any event', async () => {
+    const { taskRepo, eventRepo, clock } = setup();
+    const task = createTask({ title: 'T', description: '', source: 'manual', sourceRefId: null }, clock.now());
+    await taskRepo.save(task);
+
+    const result = await setDelegateStatus({ taskRepo, clock }, task.id, 'waiting-on-reply');
+
+    expect(result.delegateStatus).toBe('waiting-on-reply');
+    expect((await taskRepo.findById(task.id))?.delegateStatus).toBe('waiting-on-reply');
+    expect(await eventRepo.findByTaskId(task.id)).toHaveLength(0);
   });
 });

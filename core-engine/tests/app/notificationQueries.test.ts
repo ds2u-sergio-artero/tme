@@ -25,6 +25,22 @@ describe('deadlinesDueWithin', () => {
 
     expect(results.map((t) => t.id)).toEqual([due.id]);
   });
+
+  test('excludes a task with a terminal status even when its deadline is in the window', async () => {
+    const taskRepo = new FakeTaskRepository();
+    const clock = new FixedClock(new Date('2026-01-01T00:00:00Z'));
+
+    const completed = {
+      ...createTask({ title: 'Completed', description: '', source: 'manual', sourceRefId: null }, clock.now()),
+      deadline: new Date('2026-01-05T00:00:00Z'),
+      status: 'Completed' as const,
+    };
+    await taskRepo.save(completed);
+
+    const results = await deadlinesDueWithin({ taskRepo, clock }, new Date('2026-01-07T00:00:00Z'));
+
+    expect(results).toEqual([]);
+  });
 });
 
 describe('followUpsDueWithin', () => {

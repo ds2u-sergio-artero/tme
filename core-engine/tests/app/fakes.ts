@@ -1,10 +1,14 @@
-import { Task, Source, CalendarEventRef } from '../../src/domain/task.js';
+import { Task, Source, Status, CalendarEventRef } from '../../src/domain/task.js';
 import { TaskEvent } from '../../src/domain/taskEvent.js';
 import { TaskRepository } from '../../src/ports/TaskRepository.js';
 import { TaskEventRepository } from '../../src/ports/TaskEventRepository.js';
 import { SchedulingPort } from '../../src/ports/SchedulingPort.js';
 import { SuggestionPort, Suggestion, SuggestionContent } from '../../src/ports/SuggestionPort.js';
 import { Clock } from '../../src/ports/Clock.js';
+
+// Mirrors the status filter in PgTaskRepository's due-within queries: notification
+// queries never surface tasks in a terminal status.
+const ACTIVE_STATUSES: Status[] = ['Open', 'Scheduled', 'Delegated'];
 
 export class FakeTaskRepository implements TaskRepository {
   private tasks = new Map<string, Task>();
@@ -39,7 +43,11 @@ export class FakeTaskRepository implements TaskRepository {
 
   async findDeadlinesDueWithin(from: Date, to: Date): Promise<Task[]> {
     return [...this.tasks.values()].filter(
-      (t) => t.deadline !== null && t.deadline.getTime() >= from.getTime() && t.deadline.getTime() <= to.getTime()
+      (t) =>
+        t.deadline !== null &&
+        t.deadline.getTime() >= from.getTime() &&
+        t.deadline.getTime() <= to.getTime() &&
+        ACTIVE_STATUSES.includes(t.status)
     );
   }
 
@@ -48,7 +56,8 @@ export class FakeTaskRepository implements TaskRepository {
       (t) =>
         t.followUpDate !== null &&
         t.followUpDate.getTime() >= from.getTime() &&
-        t.followUpDate.getTime() <= to.getTime()
+        t.followUpDate.getTime() <= to.getTime() &&
+        ACTIVE_STATUSES.includes(t.status)
     );
   }
 }
