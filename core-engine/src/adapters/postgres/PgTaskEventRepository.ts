@@ -32,8 +32,8 @@ export class PgTaskEventRepository implements TaskEventRepository {
         event.id,
         event.taskId,
         event.eventType,
-        JSON.stringify(event.oldValue),
-        JSON.stringify(event.newValue),
+        event.oldValue === null ? null : JSON.stringify(event.oldValue),
+        event.newValue === null ? null : JSON.stringify(event.newValue),
         event.occurredAt,
       ]
     );
@@ -41,7 +41,7 @@ export class PgTaskEventRepository implements TaskEventRepository {
 
   async findByTaskId(taskId: string): Promise<TaskEvent[]> {
     const result = await this.pool.query<TaskEventRow>(
-      'SELECT * FROM task_events WHERE task_id = $1 ORDER BY occurred_at ASC',
+      'SELECT * FROM task_events WHERE task_id = $1 ORDER BY occurred_at ASC, id ASC',
       [taskId]
     );
     return result.rows.map(fromRow);
