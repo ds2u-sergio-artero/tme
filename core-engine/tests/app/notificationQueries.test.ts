@@ -14,8 +14,12 @@ describe('deadlinesDueWithin', () => {
       deadline: new Date('2026-01-05T00:00:00Z'),
       snoozedUntil: new Date('2026-01-10T00:00:00Z'),
     };
+    const beforeWindow = { ...createTask({ title: 'Before', description: '', source: 'manual', sourceRefId: null }, clock.now()), deadline: new Date('2025-12-25T00:00:00Z') };
+    const afterWindow = { ...createTask({ title: 'After', description: '', source: 'manual', sourceRefId: null }, clock.now()), deadline: new Date('2026-02-15T00:00:00Z') };
     await taskRepo.save(due);
     await taskRepo.save(snoozed);
+    await taskRepo.save(beforeWindow);
+    await taskRepo.save(afterWindow);
 
     const results = await deadlinesDueWithin({ taskRepo, clock }, new Date('2026-01-07T00:00:00Z'));
 
@@ -34,8 +38,12 @@ describe('followUpsDueWithin', () => {
       followUpDate: new Date('2026-01-05T00:00:00Z'),
       snoozedUntil: new Date('2026-01-10T00:00:00Z'),
     };
+    const beforeWindow = { ...createTask({ title: 'Before', description: '', source: 'manual', sourceRefId: null }, clock.now()), followUpDate: new Date('2025-12-25T00:00:00Z') };
+    const afterWindow = { ...createTask({ title: 'After', description: '', source: 'manual', sourceRefId: null }, clock.now()), followUpDate: new Date('2026-02-15T00:00:00Z') };
     await taskRepo.save(due);
     await taskRepo.save(snoozed);
+    await taskRepo.save(beforeWindow);
+    await taskRepo.save(afterWindow);
 
     const results = await followUpsDueWithin({ taskRepo, clock }, new Date('2026-01-07T00:00:00Z'));
 
