@@ -1,8 +1,8 @@
 import { describe, test, expect } from 'vitest';
-import { completeTask, archiveTask, restoreTask, deleteTask } from '../../src/app/lifecycleService';
-import { FakeTaskRepository, FakeTaskEventRepository, FixedClock } from './fakes';
-import { createTask } from '../../src/domain/task';
-import { DomainError } from '../../src/domain/errors';
+import { completeTask, archiveTask, restoreTask, deleteTask } from '../../src/app/lifecycleService.js';
+import { FakeTaskRepository, FakeTaskEventRepository, FixedClock } from './fakes.js';
+import { createTask } from '../../src/domain/task.js';
+import { DomainError } from '../../src/domain/errors.js';
 
 function setup(status: 'Open' | 'Scheduled' | 'Archived' | 'Deleted' = 'Open') {
   const taskRepo = new FakeTaskRepository();

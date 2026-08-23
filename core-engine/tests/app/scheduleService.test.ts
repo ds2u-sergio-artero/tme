@@ -1,8 +1,8 @@
 import { describe, test, expect } from 'vitest';
-import { scheduleTask } from '../../src/app/scheduleService';
-import { FakeTaskRepository, FakeTaskEventRepository, FakeSchedulingPort, FixedClock } from './fakes';
-import { createTask } from '../../src/domain/task';
-import { DomainError } from '../../src/domain/errors';
+import { scheduleTask } from '../../src/app/scheduleService.js';
+import { FakeTaskRepository, FakeTaskEventRepository, FakeSchedulingPort, FixedClock } from './fakes.js';
+import { createTask } from '../../src/domain/task.js';
+import { DomainError } from '../../src/domain/errors.js';
 
 function setup() {
   const taskRepo = new FakeTaskRepository();
