@@ -21,6 +21,8 @@ export async function eventCancelled(
   const now = deps.clock.now();
   const updated = applyEventCancelled(task, now);
   await deps.taskRepo.save(updated);
-  await deps.eventRepo.append(createTaskEvent(task.id, 'status_transition', task.status, updated.status, now));
+  if (task.status !== updated.status) {
+    await deps.eventRepo.append(createTaskEvent(task.id, 'status_transition', task.status, updated.status, now));
+  }
   return updated;
 }

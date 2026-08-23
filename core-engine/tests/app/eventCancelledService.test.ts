@@ -37,4 +37,24 @@ describe('eventCancelled', () => {
       eventCancelled({ taskRepo, eventRepo, clock }, { provider: 'google', externalEventId: 'missing' })
     ).rejects.toThrow(LinkedTaskNotFoundError);
   });
+
+  test('clears schedule but does not emit status_transition when task is already Delegated', async () => {
+    const { taskRepo, eventRepo, clock } = setup();
+    const ref = { provider: 'google', externalEventId: 'evt-2' };
+    const task = {
+      ...createTask({ title: 'T', description: '', source: 'calendar_event', sourceRefId: 'evt-2' }, clock.now()),
+      status: 'Delegated' as const,
+      scheduledDate: new Date('2026-02-01T00:00:00Z'),
+      calendarEventRef: ref,
+    };
+    await taskRepo.save(task);
+
+    const result = await eventCancelled({ taskRepo, eventRepo, clock }, ref);
+
+    expect(result.status).toBe('Delegated');
+    expect(result.scheduledDate).toBeNull();
+    expect(result.schedulingRemoved).toBe(true);
+    const events = await eventRepo.findByTaskId(task.id);
+    expect(events).toHaveLength(0);
+  });
 });
