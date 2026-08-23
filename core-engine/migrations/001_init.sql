@@ -30,6 +30,8 @@ CREATE TABLE IF NOT EXISTS tasks (
 -- partial unique index — not a soft-delete-aware one — is exactly correct here.
 CREATE UNIQUE INDEX IF NOT EXISTS tasks_source_dedupe_idx ON tasks (source, source_ref_id) WHERE source_ref_id IS NOT NULL;
 
+CREATE INDEX IF NOT EXISTS tasks_calendar_event_idx ON tasks (calendar_event_provider, calendar_event_external_id) WHERE calendar_event_external_id IS NOT NULL;
+
 CREATE TABLE IF NOT EXISTS task_events (
   id UUID PRIMARY KEY,
   task_id UUID NOT NULL REFERENCES tasks(id),
