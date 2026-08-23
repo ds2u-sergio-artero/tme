@@ -1,8 +1,7 @@
 import { describe, test, expect } from 'vitest';
-import { createTask } from '../../src/domain/task.js';
+import { createTask, Status } from '../../src/domain/task.js';
 import { canTransition, transitionStatus } from '../../src/domain/statusTransition.js';
 import { DomainError } from '../../src/domain/errors.js';
-import { Status } from '../../src/domain/task.js';
 
 const now = new Date('2026-01-01T00:00:00Z');
 
@@ -24,6 +23,11 @@ describe('canTransition', () => {
     ['Completed', 'Deleted'],
     ['Archived', 'Open'],
     ['Archived', 'Deleted'],
+    ['Open', 'Archived'],
+    ['Scheduled', 'Archived'],
+    ['Open', 'Deleted'],
+    ['Scheduled', 'Deleted'],
+    ['Delegated', 'Deleted'],
   ])('%s -> %s is legal', (from, to) => {
     expect(canTransition(from, to)).toBe(true);
   });
