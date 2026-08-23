@@ -1,8 +1,16 @@
 import { Task } from './task.js';
 import { DomainError } from './errors.js';
+import { isAutoPromoted } from './effectiveQuadrant.js';
 
 export function classify(task: Task, importance: boolean, urgency: boolean, now: Date): Task {
-  return { ...task, importance, urgency, updatedAt: now };
+  const placeOverride = isAutoPromoted(task, now) && importance === true && urgency === false;
+  return {
+    ...task,
+    importance,
+    urgency,
+    promotionOverride: placeOverride ? task.deadline : task.promotionOverride,
+    updatedAt: now,
+  };
 }
 
 export function recordSuggestion(task: Task, importance: boolean, urgency: boolean, now: Date): Task {

@@ -19,6 +19,26 @@ describe('classify', () => {
     expect(result.suggestedImportance).toBe(true);
     expect(result.suggestedUrgency).toBe(true);
   });
+
+  test('confirming Schedule on a task that is auto-promoted to Do places an override bound to the deadline', () => {
+    const past = new Date('2025-12-01T00:00:00Z');
+    const promoted = { ...baseTask(), importance: true, urgency: false, deadline: past, promotionOverride: null };
+    const result = classify(promoted, true, false, now);
+    expect(result.promotionOverride).toEqual(past);
+  });
+
+  test('reclassifying an auto-promoted task to a different quadrant does not place an override', () => {
+    const past = new Date('2025-12-01T00:00:00Z');
+    const promoted = { ...baseTask(), importance: true, urgency: false, deadline: past, promotionOverride: null };
+    const result = classify(promoted, false, false, now);
+    expect(result.promotionOverride).toBeNull();
+  });
+
+  test('classifying a task that was never auto-promoted does not place an override', () => {
+    const task = baseTask();
+    const result = classify(task, true, false, now);
+    expect(result.promotionOverride).toBeNull();
+  });
 });
 
 describe('recordSuggestion', () => {
