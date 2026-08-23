@@ -45,4 +45,9 @@ describe('isSnoozed', () => {
     const task = taskWithStatus('Open');
     expect(isSnoozed(task, now)).toBe(false);
   });
+
+  test('is false when snoozedUntil equals now (boundary)', () => {
+    const task = { ...taskWithStatus('Open'), snoozedUntil: now };
+    expect(isSnoozed(task, now)).toBe(false);
+  });
 });
