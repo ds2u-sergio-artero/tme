@@ -42,6 +42,7 @@ describe('canTransition', () => {
     ['Deleted', 'Open'],
     ['Deleted', 'Archived'],
     ['Open', 'Open'],
+    ['Scheduled', 'Scheduled'],
   ])('%s -> %s is illegal', (from, to) => {
     expect(canTransition(from, to)).toBe(false);
   });
