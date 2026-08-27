@@ -1,7 +1,6 @@
 # aia-harness
-.claude/settings.local.json
-.claude/*.local.*
-.claude/.aia-harness-pending/
+.claude/
+dist
 
 # secrets — never commit
 .env
@@ -13,3 +12,10 @@
 .claude/*.graphify-bak
 graphify-out/
 node_modules/
+.superpowers/
+
+# vault
+vault
+
+# obsidian-mcp server (clone + .env + docker volumes) — never commit
+.obsidian-mcp/

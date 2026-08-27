@@ -286,7 +286,8 @@
       "Edit(//private/tmp/**)",
       "Edit(//tmp/**)",
       "Write(//private/tmp/**)",
-      "Write(//tmp/**)"
+      "Write(//tmp/**)",
+      "mcp__obsidian"
     ],
     "deny": [
       "Read(./.env)",
